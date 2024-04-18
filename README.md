@@ -59,8 +59,7 @@ pnpm run deploy
 pnpm run deploy
 ```
 
-####
-## If you want to update a deployed app：
+###### If you want to update a deployed app：
 ```
 pnpm run deploy INIT=false
 ```
