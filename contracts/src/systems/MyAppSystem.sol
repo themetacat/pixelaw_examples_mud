@@ -26,14 +26,15 @@ contract MyAppSystem is System {
     // init my app
     ICoreSystem(_world()).update_app(APP_NAME, APP_ICON, APP_MANIFEST, NAMESPACE, SYSTEM_NAME);
 
-    // bytes4 INTERACT_SELECTOR =  bytes4(keccak256("interact(DefaultParameters, Direction)"));
+    // Set app instruction
+    // bytes4 INTERACT_SELECTOR =  bytes4(keccak256("interact(DefaultParameters)"));
     // string memory INTERACT_INSTRUCTION = 'select for myapp';
     // ICoreSystem(_world()).set_instruction(INTERACT_SELECTOR, INTERACT_INSTRUCTION);
 
-    //Grant permission to the snake App
+    // Grant permission to the snake App
     ICoreSystem(_world()).update_permission("snake", 
     PermissionsData({
-      app: false, color: true, owner: false, text: true, timestamp: false, action: false
+      app: true, color: true, owner: true, text: true, timestamp: false, action: false
       })); 
   }
 
@@ -41,21 +42,11 @@ contract MyAppSystem is System {
   // Arguments
   //`position` - Position of the pixel.
   //`new_color` - Color to set the pixel to.
-  function interact(DefaultParameters memory default_parameters, TestEnum testEnum, Position memory po, TestEnumTwo testEnumTwo, TestParameters memory testParameters) public {
+  function interact(DefaultParameters memory default_parameters) public {
     // Load important variables
     Position memory position = default_parameters.position;
     address player = default_parameters.for_player;
     string memory app = default_parameters.for_app;
-    /////////////
-    require(testParameters.test_uint == 1, "testParameters.test_uint not 1");
-    string memory color = default_parameters.color;
-    if(testEnum == TestEnum.Q){
-      color = "#FFFFFF";
-    }
-    if(testEnumTwo == TestEnumTwo.S){
-      app = "testapp";
-    }
-    /////////////
 
     // Load the Pixel
     PixelData memory pixel = Pixel.get(position.x, position.y);
@@ -68,30 +59,20 @@ contract MyAppSystem is System {
     require(pixel.owner == address(0) || pixel.owner == player || block.timestamp - pixel.timestamp < COOLDOWN_SECS, 'Cooldown not over');
 
     // We can now update color of the pixel
+
+    // If you don't want to assign a value of type address(like owner), you should pass in address(1)
+    // If you don't want to assign a value of type string(like app、color、text...), you should pass in "_Null"
     ICoreSystem(_world()).update_pixel(
       PixelUpdateData({
-        x: po.x,
-        y: po.y,
-        color: color,
+        x: position.x,
+        y: position.y,
+        color: default_parameters.color,
         timestamp: 0,
         text: "",
         app: app,
         owner: player,
-        action: "test_interact"
+        action: ""
       }));
-
-  }
-
-  function test_interact(TestEnumTwo testEnumTwo, TestParameters memory testParameters) public {
-    // Load important variables
-    require(testParameters.test_uint == 1, "testParameters.test_uint not 1");
-    string memory app = testParameters.app;
-    if(testEnumTwo == TestEnumTwo.S){
-      app = "testapp";
-    }
-
-    // require(app == "test", "app not testapp");
-
   }
 
 }

@@ -15,11 +15,21 @@ interface IMyAppSystem {
 
   function myapp_MyAppSystem_interact(
     DefaultParameters memory default_parameters,
-    Position memory po,
     TestEnum testEnum,
+    string memory testString,
+    uint256 testUint,
+    Position memory po,
+    address testAddress,
     TestEnumTwo testEnumTwo,
     TestParameters memory testParameters
   ) external;
 
-  function myapp_MyAppSystem_test_interact(TestEnumTwo testEnumTwo, TestParameters memory testParameters) external;
+  function myapp_MyAppSystem_test_interact(
+    TestEnumTwo testEnumTwo,
+    string memory testString,
+    uint256 testUint,
+    TestParameters memory testParameters
+  ) external;
+
+  function myapp_MyAppSystem_test2_interact(string memory testString, uint256 testUint) external;
 }

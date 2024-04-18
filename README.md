@@ -15,12 +15,19 @@ Use this template to create a new repository or clone this repository locally.
 git clone https://github.com/themetacat/pixelaw_app_template_mud.git
 ```
 
-# Build this code
+## Install packages
 ```
-pnpm build
+cd pixelaw_app_template_mud && pnpm install
 ```
 
-## Local Development
+## Build this code
+```
+cd ./contracts
+pnpm mud build
+```
+
+## Deploy
+### Local Development
 
 Run [Pixelaw/core](https://github.com/themetacat/pixelaw_core.git)
 
@@ -33,37 +40,44 @@ system name: MyAppSystem.sol
 extension name MyAppExtension.s.sol
 ```
 
-### Building your contracts:
+#### Building your contracts:
 ```
 pnpm mud build
 ```
 
-### Deploy/Update your App:
+#### Deploy/Update your App:
+if you set RPC_URL=xxx, you should set CHAIN_ID=xxx
 ```
 pnpm run deploy
-    INIT update the system,if INIT=false, default true
+    INIT if INIT=false,update the system, default true
     RPC_URL, default http://127.0.0.1:8545
     CHAIN_ID, default 31337
 ```
 
-##### If the app contract is deployed for the first time: 
+###### If the app contract is deployed for the first time: 
 ```
 pnpm run deploy
 ```
 
-##### If you want to update a deployed app：
+####
+## If you want to update a deployed app：
 ```
 pnpm run deploy INIT=false
 ```
 
-## Deploying to Demo
+#### Upload your ABI_JSON:
+```
+pnpm run upload
+```
 
-### Building your contracts:
+### Deploying to Demo
+
+#### Building your contracts:
 ```
 pnpm mud build
 ```
 
-### Deploy/Update your App:
+#### Deploy/Update your App:
 ```
 pnpm run deploy
     INIT update the system,if INIT=false, default true
@@ -71,12 +85,17 @@ pnpm run deploy
     CHAIN_ID, default 31337
 ```
 
-##### If the app contract is deployed for the first time: 
+###### If the app contract is deployed for the first time: 
 ```
 pnpm run deploy RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID=<replace-this-with-chain-id>
 ```
 
-##### If you want to update a deployed app：
+###### If you want to update a deployed app：
 ```
 pnpm run deploy INIT=false RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID=<replace-this-with-chain-id>
+```
+
+#### Upload your ABI_JSON:
+```
+pnpm run upload
 ```

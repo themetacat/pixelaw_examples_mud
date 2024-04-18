@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo -e "Check if anvil is running('pnpm mud deploy' need this)."
 anvil_p_total=`ps -ef | grep anvil | grep -v grep | wc -l`
 if [ $anvil_p_total -eq 0 ]

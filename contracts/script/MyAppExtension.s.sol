@@ -32,17 +32,14 @@ contract PaintExtension is Script {
     console.log("System ID:    %x", uint256(ResourceId.unwrap(systemResource)));
  
     vm.startBroadcast(deployerPrivateKey);
-    // world.registerNamespace(namespaceResource);
-
-    // forge script script/MyAppExtension.s.sol --rpc-url http://127.0.0.1:8545 --broadcast
+    world.registerNamespace(namespaceResource);
   
     MyAppSystem myAppSystem = new MyAppSystem();
     console.log("SYSTEM_ADDRESS: ", address(myAppSystem));
     
     world.registerSystem(systemResource, myAppSystem, true);
-    // world.registerFunctionSelector(systemResource, "init()");
-    // world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string),uint8,(uint32,uint32),uint8,(uint256,address,string,(uint32,uint32)))");
-    // world.registerFunctionSelector(systemResource, "test_interact(uint8,(uint256,address,string,(uint32,uint32)))");
+    world.registerFunctionSelector(systemResource, "init()");
+    world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
 
     vm.stopBroadcast();
   }
