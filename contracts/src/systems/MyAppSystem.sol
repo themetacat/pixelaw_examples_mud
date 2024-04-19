@@ -4,7 +4,7 @@ pragma solidity >=0.8.21;
 import { System } from "@latticexyz/world/src/System.sol";
 import { ICoreSystem } from "../core_codegen/world/ICoreSystem.sol";
 import { PermissionsData, DefaultParameters, Position, PixelUpdateData, Pixel, PixelData, TestParameters } from "../core_codegen/index.sol";
-import { TestEnum, TestEnumTwo } from "../codegen/common.sol";
+
 
 contract MyAppSystem is System {
 
