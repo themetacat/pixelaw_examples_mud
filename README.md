@@ -111,7 +111,7 @@ pnpm run deploy INIT=false RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID
 pnpm run upload
 ```
 
-## Commond
+## Command
 ### pnpm run deploy
 ###### if you set RPC_URL, you should set CHAIN_ID
 ```
