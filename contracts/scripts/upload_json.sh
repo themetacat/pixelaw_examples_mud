@@ -38,7 +38,7 @@ fi
 echo "========= copy success ============"
 
 git add .
-git commit -m "add ${SYSTEM_FILE_NAME}.abi"
+git commit -m "add ${SYSTEM_FILE_NAME}.abi.json"
 git pull origin main -v --no-rebase
 git push origin main -v
 
