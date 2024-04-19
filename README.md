@@ -8,34 +8,43 @@ PixeLAW is built on top of Dojo. Refer to this [page](https://mud.dev/quickstart
 
 # Getting started
 
-## Clone this repository
-Via GitHub
+### Clone this repository
+#### Via GitHub
 Use this template to create a new repository or clone this repository locally.
 ```sh
 git clone https://github.com/themetacat/pixelaw_app_template_mud.git
 ```
 
-## Install packages
+### Install packages
 ```
 cd pixelaw_app_template_mud/contracts/ && pnpm install
 ```
 
-## Build this code
+### Build this code
 ```
 pnpm mud build
 ```
 
-## Deploy
-### Local Development
-#### Important Note:
-
+### Runing Core
 **Before running this project, make sure to run the [Pixelaw/core](https://github.com/themetacat/pixelaw_core.git) repository.**
 
+### Deploy/Update your App:
+```
+pnpm run deploy
+```
+
+# Advanced
+### Local Development
+#### Important Note:
 After which, you can start deploying your app onto your local PixeLAW via:
 
 Please note the following important details:
 
-1. Update the name of the system file to be updated under `./src/systems/` in the `.env` file(SYSTEM_FILE_NAME=MyAppSystem).
+1. Ensure that the value of SYSTEM_FILE_NAME in the .env matches the system file name under the ./src/systems/ directory.For example:
+```
+system file: ./src/systems/MyAppSystem.sol
+./env: SYSTEM_FILE_NAME=MyAppSystem
+```
 2. Ensure that the prefix of the extension file name in the `./script` directory matches the system name. For example:
 ```
 system name: MyAppSystem.sol
@@ -48,14 +57,6 @@ pnpm mud build
 ```
 
 #### Deploy/Update your App:
-if you set RPC_URL=xxx, you should set CHAIN_ID=xxx
-```
-pnpm run deploy
-    INIT if INIT=false,update the system, default true
-    RPC_URL, default http://127.0.0.1:8545
-    CHAIN_ID, default 31337
-```
-
 ###### If the app contract is deployed for the first time: 
 ```
 pnpm run deploy
@@ -74,7 +75,7 @@ then:
 pnpm run deploy INIT=false
 ```
 
-#### Upload your ABI_JSON:
+#### Upload your ABI JSON:
 ```
 pnpm run upload
 ```
@@ -87,13 +88,6 @@ pnpm mud build
 ```
 
 #### Deploy/Update your App:
-```
-pnpm run deploy
-    INIT update the system,if INIT=false, default true
-    RPC_URL, default http://127.0.0.1:8545
-    CHAIN_ID, default 31337
-```
-
 ###### If the app contract is deployed for the first time: 
 ```
 pnpm run deploy RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID=<replace-this-with-chain-id>
@@ -112,7 +106,17 @@ then:
 pnpm run deploy INIT=false RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID=<replace-this-with-chain-id>
 ```
 
-#### Upload your ABI_JSON:
+#### Upload your ABI JSON:
 ```
 pnpm run upload
+```
+
+## Commond
+### pnpm run deploy
+###### if you set RPC_URL, you should set CHAIN_ID
+```
+pnpm run deploy
+    INIT if INIT=false,update the system, default true
+    RPC_URL, default http://127.0.0.1:8545
+    CHAIN_ID, default 31337
 ```
