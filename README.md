@@ -60,6 +60,14 @@ pnpm run deploy
 ```
 
 ###### If you want to update a deployed app：
+First comment out the registerNamespace and registerFunctionSelector parts in ./script/MyAppExtension.s.sol:
+```
+// world.registerNamespace(namespaceResource);
+
+// world.registerFunctionSelector(systemResource, "init()");
+// world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
+```
+then:
 ```
 pnpm run deploy INIT=false
 ```
@@ -90,6 +98,14 @@ pnpm run deploy RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID=<replace-t
 ```
 
 ###### If you want to update a deployed app：
+First comment out the registerNamespace and registerFunctionSelector parts in ./script/MyAppExtension.s.sol:
+```
+// world.registerNamespace(namespaceResource);
+
+// world.registerFunctionSelector(systemResource, "init()");
+// world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
+```
+then:
 ```
 pnpm run deploy INIT=false RPC_URL=<replace-this-with-provided-rpc-url> CHAIN_ID=<replace-this-with-chain-id>
 ```
