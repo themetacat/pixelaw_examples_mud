@@ -28,13 +28,16 @@ pnpm mud build
 
 ## Deploy
 ### Local Development
+#### Important Note:
 
-Run [Pixelaw/core](https://github.com/themetacat/pixelaw_core.git)
+**Before running this project, make sure to clone the [Pixelaw/core](https://github.com/themetacat/pixelaw_core.git) repository.**
 
-After which you can start deploying your app onto your local PixeLAW via:
+After which, you can start deploying your app onto your local PixeLAW via:
 
-The first things to note: Please enter the name of the system file to be updated under ./src/systems/ in the .env file.
-The prefix of the extension file name in the ./script should be the same as the system name, for example:
+Please note the following important details:
+
+1. Update the name of the system file to be updated under `./src/systems/` in the `.env` file(SYSTEM_FILE_NAME=MyAppSystem).
+2. Ensure that the prefix of the extension file name in the `./script` directory matches the system name. For example:
 ```
 system name: MyAppSystem.sol
 extension name MyAppExtension.s.sol
