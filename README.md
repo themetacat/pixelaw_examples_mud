@@ -17,12 +17,11 @@ git clone https://github.com/themetacat/pixelaw_app_template_mud.git
 
 ## Install packages
 ```
-cd pixelaw_app_template_mud && pnpm install
+cd pixelaw_app_template_mud/contracts/ && pnpm install
 ```
 
 ## Build this code
 ```
-cd ./contracts
 pnpm mud build
 ```
 
@@ -30,7 +29,7 @@ pnpm mud build
 ### Local Development
 #### Important Note:
 
-**Before running this project, make sure to clone the [Pixelaw/core](https://github.com/themetacat/pixelaw_core.git) repository.**
+**Before running this project, make sure to run the [Pixelaw/core](https://github.com/themetacat/pixelaw_core.git) repository.**
 
 After which, you can start deploying your app onto your local PixeLAW via:
 
