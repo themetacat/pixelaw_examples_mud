@@ -68,10 +68,10 @@ contract MyAppSystem is System {
         y: position.y,
         color: default_parameters.color,
         timestamp: 0,
-        text: "",
+        text: "_Null",
         app: app,
         owner: player,
-        action: ""
+        action: "_Null"
       }));
   }
 
