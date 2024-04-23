@@ -4,7 +4,7 @@ For additional step-by-step explanations on how to build and deploy your own Pix
 # Prerequisites
 
 ## MUD
-PixeLAW is built on top of Dojo. Refer to this [page](https://mud.dev/quickstart) to get it installed.
+PixeLAW is built on top of MUD. Refer to this [page](https://mud.dev/quickstart) to get it installed.
 
 # Getting started
 
