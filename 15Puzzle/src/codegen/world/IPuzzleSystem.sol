@@ -6,11 +6,13 @@ pragma solidity >=0.8.21;
 import { DefaultParameters } from "./../../core_codegen/index.sol";
 
 /**
- * @title IMyAppSystem
+ * @title IPuzzleSystem
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
-interface IMyAppSystem {
-  function myapp_MyAppSystem_init() external;
+interface IPuzzleSystem {
+  function puzzle_PuzzleSystem_init() external;
 
-  function myapp_MyAppSystem_interact(DefaultParameters memory default_parameters) external;
+  function puzzle_PuzzleSystem_interact(DefaultParameters memory default_parameters) external;
+
+  function puzzle_PuzzleSystem_move(DefaultParameters memory default_parameters) external;
 }

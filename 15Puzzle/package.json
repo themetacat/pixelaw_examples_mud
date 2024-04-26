@@ -21,7 +21,8 @@
     "@latticexyz/schema-type": "2.0.0-next.15",
     "@latticexyz/store": "2.0.0-next.15",
     "@latticexyz/world": "2.0.0-next.15",
-    "@latticexyz/world-modules": "2.0.0-next.15"
+    "@latticexyz/world-modules": "2.0.0-next.15",
+    "@openzeppelin/contracts": "^5.0.2"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

@@ -15,31 +15,35 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { DefaultParameters } from "../src/core_codegen/index.sol";
- 
+import { Puzzle } from "../src/codegen/index.sol";
 // For deploying MessageSystem
-import { MyAppSystem } from "../src/systems/MyAppSystem.sol";
+import { PuzzleSystem } from "../src/systems/PuzzleSystem.sol";
  
-contract PaintExtension is Script {
+contract PuzzleExtension is Script {
   function run() external {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     address worldAddress = vm.envAddress("WORLD_ADDRESS");
     console.log("world Address: ", worldAddress);
  
     WorldRegistrationSystem world = WorldRegistrationSystem(worldAddress);
-    ResourceId namespaceResource = WorldResourceIdLib.encodeNamespace(bytes14("myapp"));
-    ResourceId systemResource = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "myapp", "MyAppSystem");
+    ResourceId namespaceResource = WorldResourceIdLib.encodeNamespace(bytes14("puzzle"));
+    ResourceId systemResource = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "puzzle", "PuzzleSystem");
     console.log("Namespace ID: %x", uint256(ResourceId.unwrap(namespaceResource)));
     console.log("System ID:    %x", uint256(ResourceId.unwrap(systemResource)));
  
     vm.startBroadcast(deployerPrivateKey);
     world.registerNamespace(namespaceResource);
+
+    StoreSwitch.setStoreAddress(worldAddress);
+    Puzzle.register();
   
-    MyAppSystem myAppSystem = new MyAppSystem();
-    console.log("SYSTEM_ADDRESS: ", address(myAppSystem));
+    PuzzleSystem puzzleSystem = new PuzzleSystem();
+    console.log("SYSTEM_ADDRESS: ", address(puzzleSystem));
     
-    world.registerSystem(systemResource, myAppSystem, true);
+    world.registerSystem(systemResource, puzzleSystem, true);
     world.registerFunctionSelector(systemResource, "init()");
     world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
+    world.registerFunctionSelector(systemResource, "move((address,string,(uint32,uint32),string))");
 
     vm.stopBroadcast();
   }

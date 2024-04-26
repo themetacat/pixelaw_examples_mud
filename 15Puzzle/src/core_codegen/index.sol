@@ -30,15 +30,3 @@ struct Position{
     uint32 y; 
 }
 
-struct PositionT{
-    uint32 x;
-    uint32 y; 
-}
-
-
-struct TestParameters{
-    uint256 test_uint;
-    address ler;
-    string app;
-    PositionT pot;
-}
