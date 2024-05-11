@@ -34,9 +34,11 @@ for arg in "$@"; do
             ;;
     esac
 done
-WORLD_ADDRESS=$(cat ./worlds.json | jq -r --arg chain_id $CHAIN_ID '.[$chain_id].address')
+# WORLD_ADDRESS=$(cat ./worlds.json | jq -r --arg chain_id $CHAIN_ID '.[$chain_id].address')
+WORLD_ADDRESS=$(grep -E "^WORLD_ADDRESS=" .env | cut -d '=' -f2-)
+echo "WORLD_ADDRESS: $WORLD_ADDRESS"
 SYSTEM_FILE_NAME=$(grep -E "^SYSTEM_FILE_NAME=" .env | cut -d '=' -f2-)
-echo $SYSTEM_FILE_NAME
+echo "SYSTEM_FILE_NAME: $SYSTEM_FILE_NAME"
 SYSTEM_FILE_NAME=${SYSTEM_FILE_NAME:-'MyAppSystem'}
 file_content=$(cat "./src/systems/${SYSTEM_FILE_NAME}.sol")
 if [ -z "$file_content" ]; then

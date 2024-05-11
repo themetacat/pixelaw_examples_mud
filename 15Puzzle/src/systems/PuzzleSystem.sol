@@ -51,17 +51,20 @@ contract PuzzleSystem is System {
     require(!checkGameFinished(matrix), "Game is finished");
 
     string memory text;
+    string memory color;
     for(uint32 i; i < 16; ){
       if(matrix[i] == 0){
         text = "";
+        color = "#603d30";
       }else{
         text = Strings.toString(matrix[i]);
+        color = "#b7a091";
       }
       ICoreSystem(_world()).update_pixel(
         PixelUpdateData({
           x: position.x + i % 4,
           y: position.y + i / 4,
-          color: "#FFFFFF",
+          color: color,
           timestamp: timestamp,
           text: text,
           app: "15puzzle",
@@ -142,7 +145,7 @@ contract PuzzleSystem is System {
     uint256 text_value = getNumValue(pixel.text);
 
     require(text_value != 0, "No movement allowed");
-    require(pixel.owner == address(_msgSender()), "Not owner");
+    // require(pixel.owner == address(_msgSender()), "Not owner");
     require(keccak256(abi.encodePacked(pixel.app)) == keccak256(abi.encodePacked("15puzzle")), "Not 15Puzzle app");
     
     PuzzleData memory puzzleData = Puzzle.get(pixel.timestamp, pixel.owner, bytes_name);
@@ -157,7 +160,7 @@ contract PuzzleSystem is System {
       PixelUpdateData({
         x: zero_po.x,
         y: zero_po.y,
-        color: "#FFFFFF",
+        color: "#b7a091",
         timestamp: pixel.timestamp,
         text: pixel.text,
         app: "15puzzle",
@@ -170,7 +173,7 @@ contract PuzzleSystem is System {
       PixelUpdateData({
         x: position.x,
         y: position.y,
-        color: "#FFFFFF",
+        color: "#603d30",
         timestamp: pixel.timestamp,
         text: "",
         app: "15puzzle",
@@ -213,36 +216,6 @@ contract PuzzleSystem is System {
       matrix[index] = 0;
       return (Position({x: position.x+1, y: position.y}), matrix);
     }
-
-    // //up
-    // if(bytes(round_pixel.text).length == 0 && keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")) && round_pixel.owner ==  address(_msgSender())){
-    //   // require(keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")), "No movement allowed");
-    //   // require(round_pixel.owner ==  address(_msgSender()), "Not owner");
-    //   return Position({x: position.x, y: position.y-1});
-    // }
-    // //down
-    // round_pixel = Pixel.get(position.x, position.y+1);
-    // if(bytes(round_pixel.text).length == 0 && keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")) && round_pixel.owner ==  address(_msgSender())){
-    //   // require(keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")), "No movement allowed");
-    //   // require(round_pixel.owner ==  address(_msgSender()), "Not owner");
-    //   return Position({x: position.x, y: position.y+1});
-    // }
-
-    // //left
-    // round_pixel = Pixel.get(position.x-1, position.y);
-    // if(bytes(round_pixel.text).length == 0 && keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")) && round_pixel.owner ==  address(_msgSender())){
-    //   // require(keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")), "No movement allowed");
-    //   // require(round_pixel.owner ==  address(_msgSender()), "Not owner");
-    //   return Position({x: position.x-1, y: position.y});
-    // }
-
-    // //right
-    // round_pixel = Pixel.get(position.x+1, position.y);
-    // if(bytes(round_pixel.text).length == 0 && keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")) && round_pixel.owner ==  address(_msgSender())){
-    //   // require(keccak256(abi.encodePacked(round_pixel.app)) == keccak256(abi.encodePacked("puzzle")), "No movement allowed");
-    //   // require(round_pixel.owner ==  address(_msgSender()), "Not owner");
-    //   return Position({x: position.x+1, y: position.y});
-    // }
 
     return (Position({x: position.x, y: position.y}), matrix);
   }
