@@ -34,26 +34,26 @@ contract PopCraftExtension is Script {
     console.log("System ID:    %x", uint256(ResourceId.unwrap(systemResource)));
 
     vm.startBroadcast(deployerPrivateKey);
-    // world.registerNamespace(namespaceResource);
+    world.registerNamespace(namespaceResource);
 
-    // StoreSwitch.setStoreAddress(worldAddress);
+    StoreSwitch.setStoreAddress(worldAddress);
 
-    // TCMPopStar.register();
-    // TokenSold.register();
-    // TokenBalance.register();
-    // GameSuccess.register();
+    TCMPopStar.register();
+    TokenSold.register();
+    TokenBalance.register();
+    GameSuccess.register();
 
     PopCraftSystem popCraftSystem = new PopCraftSystem();
     console.log("SYSTEM_ADDRESS: ", address(popCraftSystem));
     
     world.registerSystem(systemResource, popCraftSystem, true);
-    // world.registerFunctionSelector(systemResource, "init()");
-    // world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
-    // world.registerFunctionSelector(systemResource, "pop((address,string,(uint32,uint32),string))");
-    // world.registerFunctionSelector(systemResource, "buyToken(address[],uint256[])");
-    // world.registerFunctionSelector(systemResource, "withDrawToken(address,uint256)");
-    // world.registerFunctionSelector(systemResource, "quoteOutput(address[],uint256[])");
-    // world.registerFunctionSelector(systemResource, "reIssuanceRewards(address[])");
+    world.registerFunctionSelector(systemResource, "init()");
+    world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
+    world.registerFunctionSelector(systemResource, "pop((address,string,(uint32,uint32),string))");
+    world.registerFunctionSelector(systemResource, "buyToken(address[],uint256[])");
+    world.registerFunctionSelector(systemResource, "withDrawToken(address,uint256)");
+    world.registerFunctionSelector(systemResource, "quoteOutput(address[],uint256[])");
+    world.registerFunctionSelector(systemResource, "reIssuanceRewards(address[])");
     vm.stopBroadcast();
   }
 

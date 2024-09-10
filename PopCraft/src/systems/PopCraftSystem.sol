@@ -7,19 +7,19 @@ import { IWorld } from "../core_codegen/world/IWorld.sol";
 import { PermissionsData, DefaultParameters, Position, PixelUpdateData, Pixel, PixelData, ERC20TokenBalance } from "../core_codegen/index.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import { TCMPopStar, TCMPopStarData, TokenBalance, TokenSold, TokenSoldData, GameSuccess, GameSuccessData } from "../codegen/index.sol";
-// import { IERC20 } from "@latticexyz/world-modules/src/modules/erc20-puppet/IERC20.sol";
+import { IERC20 } from "@latticexyz/world-modules/src/modules/erc20-puppet/IERC20.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 import { Puppet } from "@latticexyz/world-modules/src/modules/puppet/Puppet.sol";
 import { WorldContextConsumerLib } from "@latticexyz/world/src/WorldContext.sol";
 import { WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
-import { IERC20 } from "../interfaces/IERC20.sol";
+// import { IERC20 } from "../interfaces/IERC20.sol";
 import { IQuote, SwapParams, Quote } from "../interfaces/IQuote.sol";
 import { AccessControl } from "@latticexyz/world/src/AccessControl.sol";
 
 contract PopCraftSystem is System {
 
-  string constant APP_ICON = 'U+1F680';
+  string constant APP_ICON = 'U+1F48E';
   string constant NAMESPACE = 'popCraft';
   string constant SYSTEM_NAME = 'PopCraftSystem';
   string constant APP_NAME = 'PopCraft';
@@ -27,9 +27,8 @@ contract PopCraftSystem is System {
   bytes14 constant BYTESNAMESPACE = bytes14(bytes(NAMESPACE));
 
   bytes32 bytes_name = converToBytes32("PopCraft");
-  uint256 overtime = 5 minutes;
-
-  uint256 constant bonus = 1000000000000000000;
+  uint256 overtime = 4 minutes + 3 seconds;
+  uint256 constant bonus = 150 * 10 ** 18;
   address constant BUGS = 0x9c0153C56b460656DF4533246302d42Bd2b49947;
   address constant quoterAddr = 0xA15BB66138824a1c7167f5E85b957d04Dd34E468;
   uint256 constant limit_amount = 20 * 10 ** 18;
@@ -69,9 +68,9 @@ contract PopCraftSystem is System {
 
     TCMPopStarData memory tcmPopStarData = TCMPopStar.get(_msgSender());
 
-    if(!tcmPopStarData.gameFinished && block.timestamp < (tcmPopStarData.startTime + overtime)){
-      revert GameContinues();
-    }
+    // if(!tcmPopStarData.gameFinished && block.timestamp < (tcmPopStarData.startTime + overtime)){
+    //   revert GameContinues();
+    // }
    
     if(tcmPopStarData.startTime > 0){
       position = Position({x: tcmPopStarData.x, y: tcmPopStarData.y});
@@ -81,21 +80,20 @@ contract PopCraftSystem is System {
 
     {
       uint256 timestamp = block.timestamp;
-
+      PixelUpdateData[] memory pixelUpdateData = new PixelUpdateData[](100);
       uint256[] memory matrix = shuffle();
       address[] memory tokenAddressArr = randomTCMToken();
       // bool game_finished = check_game_finished(matrix);
       string memory text;
       string memory color;
-      uint256 arr_index_value;
+      uint256 arr_index;
       unchecked {
         for(uint32 i; i < 10; i++){
           for(uint32 j; j < 10; j++){
-            arr_index_value = matrix[10*i+j];
+            arr_index = 10*i+j;
 
-            (text, color) = getColorText(arr_index_value);
-            coreSystem.update_pixel(
-              PixelUpdateData({
+            (text, color) = getColorText(matrix[arr_index]);
+            pixelUpdateData[arr_index] = PixelUpdateData({
                 x: position.x + j,
                 y: position.y + i,
                 color: color,
@@ -104,11 +102,23 @@ contract PopCraftSystem is System {
                 app: "PopCraft",
                 owner: _msgSender(),
                 action: "pop"
-              })
-            );
+              });
+            // coreSystem.update_pixel(
+            //   PixelUpdateData({
+            //     x: position.x + j,
+            //     y: position.y + i,
+            //     color: color,
+            //     timestamp: timestamp,
+            //     text: text,
+            //     app: "PopCraft",
+            //     owner: _msgSender(),
+            //     action: "pop"
+            //   })
+            // );
           }
         }
       }
+      IWorld(_world()).update_pixel_batch(pixelUpdateData);
       // for(uint32 i; i < 10; ){
       //   for(uint32 j; j < 10; ){
       //     arr_index = 10*i+j;
@@ -186,6 +196,7 @@ contract PopCraftSystem is System {
   }
 
   function pop(DefaultParameters memory default_parameters) public {
+
     Position memory position = default_parameters.position;
     PixelData memory pixel = Pixel.get(position.x, position.y);
     require(pixel.owner == address(_msgSender()), "Not owner");
@@ -231,6 +242,8 @@ contract PopCraftSystem is System {
     }
 
     matrix_array = move(matrix_array);
+
+    // uint256[] memory matrix_array = new uint256[](100);
     
     {
       bool game_finished = check_game_finished(matrix_array);
@@ -423,27 +436,6 @@ contract PopCraftSystem is System {
     return false;
   }
 
-  // function check_game_finished(uint256[] memory matrix_array) private pure returns(bool){
-  //   for(uint256 i; i < 99; ){
-  //     if(matrix_array[i] != 0){
-  //       if(i>89){
-  //         if(matrix_array[i] == matrix_array[i+1]){
-  //           return false;
-  //         }
-  //       }else if(i%10 == 9){
-  //         if(matrix_array[i] == matrix_array[i+10]){
-  //           return false;
-  //         }
-  //       }else if(matrix_array[i] == matrix_array[i+1] || matrix_array[i] == matrix_array[i+10]){
-  //         return false;
-  //       }
-  //     }
-  //     unchecked{
-  //       i++;
-  //     }
-  //   }
-  //   return true;
-  // }
   function check_game_finished(uint256[] memory matrix_array) private pure returns(bool){
     unchecked{
       for(uint256 i; i < 99; ){
@@ -536,13 +528,11 @@ contract PopCraftSystem is System {
     require(_msgValue() >= total_price, 'Not enough payment');
     for(uint256 i; i < token_addr_length; i++){
       if(token_addr[i] != BUGS){
-        if (amount[i] > limit_amount) revert ExceededPurchaseLimit(limit_amount);
-        // require(amount[i] <= limit_amount, 'Exceeded purchase limit!');
-        uint256 total_supply = ERC20TokenBalance.get(token_addr[i], WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
+        // if (amount[i] > limit_amount) revert ExceededPurchaseLimit(limit_amount);
+        // uint256 total_supply = ERC20TokenBalance.get(token_addr[i], WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
         TokenSoldData memory tokenSoldData = TokenSold.get(token_addr[i]);
 
-        if(total_supply < 
-        tokenSoldData.soldNow + amount[i]) revert Inventory_shortage(token_addr[i]);
+        // if(total_supply < tokenSoldData.soldNow + amount[i]) revert Inventory_shortage(token_addr[i]);
 
         TokenSold.set(token_addr[i], tokenSoldData.soldNow + amount[i], tokenSoldData.soldAll + amount[i]);
 
@@ -552,19 +542,19 @@ contract PopCraftSystem is System {
     }
   }
 
-  function withDrawToken(address[] memory token_addr, uint256[] memory amount) public {
+  function withDrawToken(address[] memory token_addr, uint256[] memory amount) public pure {
     uint256 token_addr_length = token_addr.length;
     require(token_addr_length == amount.length, 'Length mismatch');
-    for(uint256 i; i < token_addr_length; i++){
-      uint256 token_balance = TokenBalance.get(_msgSender(), token_addr[i]);
-      if(token_balance < amount[i]) revert InsufficientBalance(token_addr[i]);
+    // for(uint256 i; i < token_addr_length; i++){
+    //   uint256 token_balance = TokenBalance.get(_msgSender(), token_addr[i]);
+    //   if(token_balance < amount[i]) revert InsufficientBalance(token_addr[i]);
 
-      uint256 token_sold_now = TokenSold.getSoldNow(token_addr[i]);
-      TokenSold.setSoldNow(token_addr[i], token_sold_now - amount[i]);
-      TokenBalance.set(_msgSender(), token_addr[i], token_balance - amount[i]);
+    //   uint256 token_sold_now = TokenSold.getSoldNow(token_addr[i]);
+    //   TokenSold.setSoldNow(token_addr[i], token_sold_now - amount[i]);
+    //   TokenBalance.set(_msgSender(), token_addr[i], token_balance - amount[i]);
 
-      ICoreSystem(_world()).transferERC20TokenToAddress(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), token_addr[i], _msgSender(), amount[i]);
-    }
+    //   IWorld(_world()).transferERC20TokenToAddress(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), token_addr[i], _msgSender(), amount[i]);
+    // }
   }
   
   function quoteOutput(address[] memory tokenOut, uint256[] memory amount) public view returns (uint256 res) {
@@ -602,6 +592,5 @@ contract PopCraftSystem is System {
       }
     }
   }
-
 
 }
