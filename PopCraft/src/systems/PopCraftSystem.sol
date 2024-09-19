@@ -36,12 +36,7 @@ contract PopCraftSystem is System {
   address[] private TCMTokens;
   ICoreSystem internal coreSystem;
 
-  // error OvertimeError();
   error InsufficientBalance(address);
-  error Inventory_shortage(address shortageToken);
-  error GetQuoteError();
-  error GameContinues();
-  error ExceededPurchaseLimit(uint256 limit);
 
   constructor() {
     TCMTokens = [
@@ -484,9 +479,6 @@ contract PopCraftSystem is System {
   function buyToken(UniversalRouterParams[] calldata universalRouterParams) public payable {
     uint256 router_params_length = universalRouterParams.length;
 
-    // uint256 total_price = quoteOutput(token_addr, amount);
-    
-    // require(_msgValue() >= total_price, 'Not enough payment');
     require(_msgValue() > 0, "msgValue < 0");
 
     uint256 balance_last = address(this).balance;
@@ -499,18 +491,12 @@ contract PopCraftSystem is System {
     for(uint256 i; i < router_params_length; i++){
       address token_addr = universalRouterParams[i].token_info.token_addr;
       uint256 amount = universalRouterParams[i].token_info.amount;
-      // if(tokenInfo[i].tokenAddr != BUGS){
-        // if (amount[i] > limit_amount) revert ExceededPurchaseLimit(limit_amount);
-        // uint256 total_supply = ERC20TokenBalance.get(token_addr[i], WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
+   
         TokenSoldData memory tokenSoldData = TokenSold.get(token_addr);
-
-        // if(total_supply < tokenSoldData.soldNow + amount[i]) revert Inventory_shortage(token_addr[i]);
-
         TokenSold.set(token_addr, tokenSoldData.soldNow + amount, tokenSoldData.soldAll + amount);
 
         uint256 balance = TokenBalance.get(_msgSender() ,token_addr);
         TokenBalance.set(_msgSender() ,token_addr, balance + amount);
-      // }
     }
   }
 

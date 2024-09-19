@@ -51,8 +51,7 @@ contract PopCraftExtension is Script {
     world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
     world.registerFunctionSelector(systemResource, "pop((address,string,(uint32,uint32),string))");
     world.registerFunctionSelector(systemResource, "buyToken((bytes,uint256,(address,uint256))[])");
-    world.registerFunctionSelector(systemResource, "withDrawToken(address,uint256)");
-    world.registerFunctionSelector(systemResource, "quoteOutput(address[],uint256[])");
+    // world.registerFunctionSelector(systemResource, "withDrawToken(address,uint256)");
     world.registerFunctionSelector(systemResource, "reIssuanceRewards(address[])");
     vm.stopBroadcast();
   }
