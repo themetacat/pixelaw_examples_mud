@@ -6,4 +6,4 @@ pragma solidity >=0.8.21;
 import { TCMPopStar, TCMPopStarData, TCMPopStarTableId } from "./tables/TCMPopStar.sol";
 import { TokenBalance, TokenBalanceTableId } from "./tables/TokenBalance.sol";
 import { TokenSold, TokenSoldData, TokenSoldTableId } from "./tables/TokenSold.sol";
-import { GameSuccess, GameSuccessData, GameSuccessTableId } from "./tables/GameSuccess.sol";
+import { GameRecord, GameRecordData, GameRecordTableId } from "./tables/GameRecord.sol";

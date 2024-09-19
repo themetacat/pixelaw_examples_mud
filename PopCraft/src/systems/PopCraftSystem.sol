@@ -4,9 +4,9 @@ pragma solidity >=0.8.21;
 import { System } from "@latticexyz/world/src/System.sol";
 import { ICoreSystem } from "../core_codegen/world/ICoreSystem.sol";
 import { IWorld } from "../core_codegen/world/IWorld.sol";
-import { PermissionsData, DefaultParameters, Position, PixelUpdateData, Pixel, PixelData, ERC20TokenBalance } from "../core_codegen/index.sol";
+import { PermissionsData, DefaultParameters, Position, PixelUpdateData, Pixel, PixelData, ERC20TokenBalance, UniversalRouterParams, TokenInfo } from "../core_codegen/index.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import { TCMPopStar, TCMPopStarData, TokenBalance, TokenSold, TokenSoldData, GameSuccess, GameSuccessData } from "../codegen/index.sol";
+import { TCMPopStar, TCMPopStarData, TokenBalance, TokenSold, TokenSoldData, GameRecord, GameRecordData } from "../codegen/index.sol";
 import { IERC20 } from "@latticexyz/world-modules/src/modules/erc20-puppet/IERC20.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
@@ -58,6 +58,7 @@ contract PopCraftSystem is System {
     ];
     coreSystem = ICoreSystem(0x784844480280Ca865Ac8eF89bB554283DDDFF737);
   }
+  receive() external payable {}
 
   function init() public {
     ICoreSystem(_world()).update_app(APP_NAME, APP_ICON, APP_MANIFEST, NAMESPACE, SYSTEM_NAME);
@@ -68,10 +69,6 @@ contract PopCraftSystem is System {
 
     TCMPopStarData memory tcmPopStarData = TCMPopStar.get(_msgSender());
 
-    // if(!tcmPopStarData.gameFinished && block.timestamp < (tcmPopStarData.startTime + overtime)){
-    //   revert GameContinues();
-    // }
-   
     if(tcmPopStarData.startTime > 0){
       position = Position({x: tcmPopStarData.x, y: tcmPopStarData.y});
     }else{
@@ -83,7 +80,6 @@ contract PopCraftSystem is System {
       PixelUpdateData[] memory pixelUpdateData = new PixelUpdateData[](100);
       uint256[] memory matrix = shuffle();
       address[] memory tokenAddressArr = randomTCMToken();
-      // bool game_finished = check_game_finished(matrix);
       string memory text;
       string memory color;
       uint256 arr_index;
@@ -103,47 +99,14 @@ contract PopCraftSystem is System {
                 owner: _msgSender(),
                 action: "pop"
               });
-            // coreSystem.update_pixel(
-            //   PixelUpdateData({
-            //     x: position.x + j,
-            //     y: position.y + i,
-            //     color: color,
-            //     timestamp: timestamp,
-            //     text: text,
-            //     app: "PopCraft",
-            //     owner: _msgSender(),
-            //     action: "pop"
-            //   })
-            // );
           }
         }
       }
       IWorld(_world()).update_pixel_batch(pixelUpdateData);
-      // for(uint32 i; i < 10; ){
-      //   for(uint32 j; j < 10; ){
-      //     arr_index = 10*i+j;
-      //     (text, color) = getColorText(matrix[arr_index]);
-      //     coreSystem.update_pixel(
-      //       PixelUpdateData({
-      //         x: position.x + j,
-      //         y: position.y + i,
-      //         color: color,
-      //         timestamp: timestamp,
-      //         text: text,
-      //         app: "TCMPopStar",
-      //         owner: _msgSender(),
-      //         action: "pop"
-      //       })
-      //     );
-      //     unchecked{
-      //       j++;
-      //     }
-      //   }
-      //   unchecked{
-      //     i++;
-      //   }
-      // }
+      
       TCMPopStar.set(_msgSender(), position.x, position.y, timestamp, false, matrix, tokenAddressArr);
+      uint256 gameTimes = GameRecord.getTimes(_msgSender());
+      GameRecord.setTimes(_msgSender(), gameTimes+=1);
     }
   }
 
@@ -278,15 +241,14 @@ contract PopCraftSystem is System {
       }
       TCMPopStar.set(_msgSender(), tcmPopStarData.x, tcmPopStarData.y, tcmPopStarData.startTime, game_finished, matrix_array, tcmPopStarData.tokenAddressArr);
       if(game_finished){
-        GameSuccessData memory gameSuccessData = GameSuccess.get(_msgSender());
+        GameRecordData memory gameRecordData = GameRecord.get(_msgSender());
         uint256 total_supply = ERC20TokenBalance.get(BUGS, WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
          if(total_supply >= bonus){
             IWorld(_world()).transferERC20TokenToAddress(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), BUGS, _msgSender(), bonus);
          }else{
-            gameSuccessData.unissuedRewards += 1;
+            gameRecordData.unissuedRewards += 1;
          }
-         
-         GameSuccess.set(_msgSender(), gameSuccessData.times += 1, gameSuccessData.unissuedRewards);
+         GameRecord.set(_msgSender(), gameRecordData.times, gameRecordData.successTimes += 1 ,gameRecordData.unissuedRewards);
       }
     }
   }
@@ -519,32 +481,42 @@ contract PopCraftSystem is System {
     
   }
 
-  function buyToken(address[] memory token_addr, uint256[] memory amount) public payable {
-    uint256 token_addr_length = token_addr.length;
+  function buyToken(UniversalRouterParams[] calldata universalRouterParams) public payable {
+    uint256 router_params_length = universalRouterParams.length;
 
-    require(token_addr_length == amount.length, 'Length mismatch');
-    uint256 total_price = quoteOutput(token_addr, amount);
+    // uint256 total_price = quoteOutput(token_addr, amount);
     
-    require(_msgValue() >= total_price, 'Not enough payment');
-    for(uint256 i; i < token_addr_length; i++){
-      if(token_addr[i] != BUGS){
+    // require(_msgValue() >= total_price, 'Not enough payment');
+    require(_msgValue() > 0, "msgValue < 0");
+
+    uint256 balance_last = address(this).balance;
+    IWorld(_world()).transferBalanceToAddress(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), address(this), _msgValue());
+    uint256 balance_after = address(this).balance;
+    require(balance_after-balance_last == _msgValue(), "Incorrect balance");
+
+    IWorld(_world()).universalRouterExecuteBatch{value:_msgValue()}(universalRouterParams, WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
+
+    for(uint256 i; i < router_params_length; i++){
+      address token_addr = universalRouterParams[i].token_info.token_addr;
+      uint256 amount = universalRouterParams[i].token_info.amount;
+      // if(tokenInfo[i].tokenAddr != BUGS){
         // if (amount[i] > limit_amount) revert ExceededPurchaseLimit(limit_amount);
         // uint256 total_supply = ERC20TokenBalance.get(token_addr[i], WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
-        TokenSoldData memory tokenSoldData = TokenSold.get(token_addr[i]);
+        TokenSoldData memory tokenSoldData = TokenSold.get(token_addr);
 
         // if(total_supply < tokenSoldData.soldNow + amount[i]) revert Inventory_shortage(token_addr[i]);
 
-        TokenSold.set(token_addr[i], tokenSoldData.soldNow + amount[i], tokenSoldData.soldAll + amount[i]);
+        TokenSold.set(token_addr, tokenSoldData.soldNow + amount, tokenSoldData.soldAll + amount);
 
-        uint256 balance = TokenBalance.get(_msgSender() ,token_addr[i]);
-        TokenBalance.set(_msgSender() ,token_addr[i], balance + amount[i]);
-      }
+        uint256 balance = TokenBalance.get(_msgSender() ,token_addr);
+        TokenBalance.set(_msgSender() ,token_addr, balance + amount);
+      // }
     }
   }
 
-  function withDrawToken(address[] memory token_addr, uint256[] memory amount) public pure {
-    uint256 token_addr_length = token_addr.length;
-    require(token_addr_length == amount.length, 'Length mismatch');
+  // function withDrawToken(address[] memory token_addr, uint256[] memory amount) public pure {
+    // uint256 token_addr_length = token_addr.length;
+    // require(token_addr_length == amount.length, 'Length mismatch');
     // for(uint256 i; i < token_addr_length; i++){
     //   uint256 token_balance = TokenBalance.get(_msgSender(), token_addr[i]);
     //   if(token_balance < amount[i]) revert InsufficientBalance(token_addr[i]);
@@ -555,38 +527,22 @@ contract PopCraftSystem is System {
 
     //   IWorld(_world()).transferERC20TokenToAddress(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), token_addr[i], _msgSender(), amount[i]);
     // }
-  }
+  // }
   
-  function quoteOutput(address[] memory tokenOut, uint256[] memory amount) public view returns (uint256 res) {
-    uint256 token_out_length = tokenOut.length;
-    require(token_out_length == amount.length, 'Length mismatch');
-    for(uint256 i; i < token_out_length; i ++){
-      SwapParams memory params = SwapParams({
-        tokenIn: 0x4200000000000000000000000000000000000006,
-        tokenOut: tokenOut[i],
-        amountSpecified: amount[i]
-      });
-      Quote memory quote = IQuote(quoterAddr).routeExactOutput(params);
-      if(quote.amountIn == 0){
-        revert GetQuoteError();
-      }
-      res += quote.amountIn;
-    }
-  }
 
   function reIssuanceRewards(address[] memory owner) external {
     AccessControl.requireOwner(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), _msgSender());
     uint256 owner_length = owner.length;
     for(uint256 i; i < owner_length; ){
-      GameSuccessData memory gameSuccessData = GameSuccess.get(owner[i]);
+      GameRecordData memory gameRecordData = GameRecord.get(owner[i]);
       uint256 total_supply = ERC20TokenBalance.get(BUGS, WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE));
       if(total_supply < bonus){
         i = owner_length;
       }else{
-        uint256 totalBonus = bonus * gameSuccessData.unissuedRewards;
+        uint256 totalBonus = bonus * gameRecordData.unissuedRewards;
         if(total_supply >= totalBonus){
           IWorld(_world()).transferERC20TokenToAddress(WorldResourceIdLib.encodeNamespace(BYTESNAMESPACE), BUGS, owner[i], totalBonus);
-          GameSuccess.setUnissuedRewards(owner[i], 0);
+          GameRecord.setUnissuedRewards(owner[i], 0);
         }
         i++;
       }

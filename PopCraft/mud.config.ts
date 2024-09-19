@@ -34,12 +34,13 @@ export default mudConfig({
         soldAll: "uint256"
       }
     },
-    GameSuccess: {
+    GameRecord: {
       keySchema:{
         owner: "address",
       },
       valueSchema:{
         times: "uint256",
+        successTimes: "uint256",
         unissuedRewards: "uint256"
       }
     }

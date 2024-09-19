@@ -21,20 +21,21 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { RESOURCE_TABLE, RESOURCE_OFFCHAIN_TABLE } from "@latticexyz/store/src/storeResourceTypes.sol";
 
 ResourceId constant _tableId = ResourceId.wrap(
-  bytes32(abi.encodePacked(RESOURCE_TABLE, bytes14("popCraft"), bytes16("GameSuccess")))
+  bytes32(abi.encodePacked(RESOURCE_TABLE, bytes14("popCraft"), bytes16("GameRecord")))
 );
-ResourceId constant GameSuccessTableId = _tableId;
+ResourceId constant GameRecordTableId = _tableId;
 
 FieldLayout constant _fieldLayout = FieldLayout.wrap(
-  0x0040020020200000000000000000000000000000000000000000000000000000
+  0x0060030020202000000000000000000000000000000000000000000000000000
 );
 
-struct GameSuccessData {
+struct GameRecordData {
   uint256 times;
+  uint256 successTimes;
   uint256 unissuedRewards;
 }
 
-library GameSuccess {
+library GameRecord {
   /**
    * @notice Get the table values' field layout.
    * @return _fieldLayout The field layout for the table.
@@ -59,9 +60,10 @@ library GameSuccess {
    * @return _valueSchema The value schema for the table.
    */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _valueSchema = new SchemaType[](2);
+    SchemaType[] memory _valueSchema = new SchemaType[](3);
     _valueSchema[0] = SchemaType.UINT256;
     _valueSchema[1] = SchemaType.UINT256;
+    _valueSchema[2] = SchemaType.UINT256;
 
     return SchemaLib.encode(_valueSchema);
   }
@@ -80,9 +82,10 @@ library GameSuccess {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](3);
     fieldNames[0] = "times";
-    fieldNames[1] = "unissuedRewards";
+    fieldNames[1] = "successTimes";
+    fieldNames[2] = "unissuedRewards";
   }
 
   /**
@@ -142,13 +145,55 @@ library GameSuccess {
   }
 
   /**
+   * @notice Get successTimes.
+   */
+  function getSuccessTimes(address owner) internal view returns (uint256 successTimes) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(owner)));
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Get successTimes.
+   */
+  function _getSuccessTimes(address owner) internal view returns (uint256 successTimes) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(owner)));
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Set successTimes.
+   */
+  function setSuccessTimes(address owner, uint256 successTimes) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(owner)));
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((successTimes)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set successTimes.
+   */
+  function _setSuccessTimes(address owner, uint256 successTimes) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256(uint160(owner)));
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((successTimes)), _fieldLayout);
+  }
+
+  /**
    * @notice Get unissuedRewards.
    */
   function getUnissuedRewards(address owner) internal view returns (uint256 unissuedRewards) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(owner)));
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -159,7 +204,7 @@ library GameSuccess {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(owner)));
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (uint256(bytes32(_blob)));
   }
 
@@ -170,7 +215,7 @@ library GameSuccess {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(owner)));
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((unissuedRewards)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((unissuedRewards)), _fieldLayout);
   }
 
   /**
@@ -180,13 +225,13 @@ library GameSuccess {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(owner)));
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((unissuedRewards)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((unissuedRewards)), _fieldLayout);
   }
 
   /**
    * @notice Get the full data.
    */
-  function get(address owner) internal view returns (GameSuccessData memory _table) {
+  function get(address owner) internal view returns (GameRecordData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(owner)));
 
@@ -201,7 +246,7 @@ library GameSuccess {
   /**
    * @notice Get the full data.
    */
-  function _get(address owner) internal view returns (GameSuccessData memory _table) {
+  function _get(address owner) internal view returns (GameRecordData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256(uint160(owner)));
 
@@ -216,8 +261,8 @@ library GameSuccess {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(address owner, uint256 times, uint256 unissuedRewards) internal {
-    bytes memory _staticData = encodeStatic(times, unissuedRewards);
+  function set(address owner, uint256 times, uint256 successTimes, uint256 unissuedRewards) internal {
+    bytes memory _staticData = encodeStatic(times, successTimes, unissuedRewards);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -231,8 +276,8 @@ library GameSuccess {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(address owner, uint256 times, uint256 unissuedRewards) internal {
-    bytes memory _staticData = encodeStatic(times, unissuedRewards);
+  function _set(address owner, uint256 times, uint256 successTimes, uint256 unissuedRewards) internal {
+    bytes memory _staticData = encodeStatic(times, successTimes, unissuedRewards);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -246,8 +291,8 @@ library GameSuccess {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(address owner, GameSuccessData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.times, _table.unissuedRewards);
+  function set(address owner, GameRecordData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.times, _table.successTimes, _table.unissuedRewards);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -261,8 +306,8 @@ library GameSuccess {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(address owner, GameSuccessData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.times, _table.unissuedRewards);
+  function _set(address owner, GameRecordData memory _table) internal {
+    bytes memory _staticData = encodeStatic(_table.times, _table.successTimes, _table.unissuedRewards);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;
@@ -276,10 +321,14 @@ library GameSuccess {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (uint256 times, uint256 unissuedRewards) {
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (uint256 times, uint256 successTimes, uint256 unissuedRewards) {
     times = (uint256(Bytes.slice32(_blob, 0)));
 
-    unissuedRewards = (uint256(Bytes.slice32(_blob, 32)));
+    successTimes = (uint256(Bytes.slice32(_blob, 32)));
+
+    unissuedRewards = (uint256(Bytes.slice32(_blob, 64)));
   }
 
   /**
@@ -292,8 +341,8 @@ library GameSuccess {
     bytes memory _staticData,
     PackedCounter,
     bytes memory
-  ) internal pure returns (GameSuccessData memory _table) {
-    (_table.times, _table.unissuedRewards) = decodeStatic(_staticData);
+  ) internal pure returns (GameRecordData memory _table) {
+    (_table.times, _table.successTimes, _table.unissuedRewards) = decodeStatic(_staticData);
   }
 
   /**
@@ -320,8 +369,12 @@ library GameSuccess {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(uint256 times, uint256 unissuedRewards) internal pure returns (bytes memory) {
-    return abi.encodePacked(times, unissuedRewards);
+  function encodeStatic(
+    uint256 times,
+    uint256 successTimes,
+    uint256 unissuedRewards
+  ) internal pure returns (bytes memory) {
+    return abi.encodePacked(times, successTimes, unissuedRewards);
   }
 
   /**
@@ -332,9 +385,10 @@ library GameSuccess {
    */
   function encode(
     uint256 times,
+    uint256 successTimes,
     uint256 unissuedRewards
   ) internal pure returns (bytes memory, PackedCounter, bytes memory) {
-    bytes memory _staticData = encodeStatic(times, unissuedRewards);
+    bytes memory _staticData = encodeStatic(times, successTimes, unissuedRewards);
 
     PackedCounter _encodedLengths;
     bytes memory _dynamicData;

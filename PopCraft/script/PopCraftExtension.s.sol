@@ -15,7 +15,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { DefaultParameters } from "../src/core_codegen/index.sol";
-import { TCMPopStar, GameSuccess, TokenSold, TokenBalance } from "../src/codegen/index.sol";
+import { TCMPopStar, GameRecord, TokenSold, TokenBalance } from "../src/codegen/index.sol";
 // import { TokenSold } from "../src/codegen/index.sol";
 // import { TokenBalance } from "../src/codegen/index.sol";
 import { PopCraftSystem } from "../src/systems/PopCraftSystem.sol";
@@ -41,7 +41,7 @@ contract PopCraftExtension is Script {
     TCMPopStar.register();
     TokenSold.register();
     TokenBalance.register();
-    GameSuccess.register();
+    GameRecord.register();
 
     PopCraftSystem popCraftSystem = new PopCraftSystem();
     console.log("SYSTEM_ADDRESS: ", address(popCraftSystem));
@@ -50,7 +50,7 @@ contract PopCraftExtension is Script {
     world.registerFunctionSelector(systemResource, "init()");
     world.registerFunctionSelector(systemResource, "interact((address,string,(uint32,uint32),string))");
     world.registerFunctionSelector(systemResource, "pop((address,string,(uint32,uint32),string))");
-    world.registerFunctionSelector(systemResource, "buyToken(address[],uint256[])");
+    world.registerFunctionSelector(systemResource, "buyToken((bytes,uint256,(address,uint256))[])");
     world.registerFunctionSelector(systemResource, "withDrawToken(address,uint256)");
     world.registerFunctionSelector(systemResource, "quoteOutput(address[],uint256[])");
     world.registerFunctionSelector(systemResource, "reIssuanceRewards(address[])");
